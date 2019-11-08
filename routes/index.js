@@ -491,6 +491,12 @@ let shared_deck = shared_deck_base.slice()
 
 let discarded_shared_deck = []
 
+function reset() {
+    hands = []
+    shared_deck = shared_deck_base.slice()
+    discarded_shared_deck = []
+}
+
 function reshuffle() {
     shared_deck = discarded_shared_deck.slice()
     discarded_shared_deck = []
@@ -571,6 +577,11 @@ router.get('/other_hands/:id', (req, res) => {
     let id = req.params.id
     let h = hands.filter(hand => hand.id != id).map(hand => hand.cards.length)
     res.send({hands: h})
+})
+
+router.get('/reset', (req, res) => {
+    reset()
+    res.send({msg: "good"})
 })
 
 module.exports = router
