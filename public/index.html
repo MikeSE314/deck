@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Root Deck</title>
+        <meta name="author" content="Micheal Erickson">
+        <meta name="description" content="Deck for Root">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="stylesheets/style.css" rel="stylesheet">
+    </head>
+    <body>
+        <div class="container">
+            <!-- vue -->
+            <div id="app">
+                <div class="row">
+                    <div class="col-xs-6 col-md-3" v-for="hand in hands">
+                        <img class="root-card root-back" :src="back_src">
+                        <p class="amount">(this opponent has {{hand}} cards)</p>
+                    </div>
+                </div>
+                <button class="btn-default" type="button" @click="draw()">Draw</button>
+                <div class="row">
+                    <div class="col-md-2 col-xs-6" v-for="card in cards">
+                        <img class="root-card" v-bind:src="card.front_src" @click="focus(card)">
+                    </div>
+                </div>
+                <div v-if="focused">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <button class="btn-default" type="button" @click="discard()">Discard</button>
+                        </div>
+                        <img class="col-md-8 root-card" :src="this.focus_card.front_src" @click="unfocus()">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script
+        src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+        crossorigin="anonymous">
+        <script
+        src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.2/dist/vue.js"></script>
+        <script src="javascripts/script.js"></script>
+    </body>
+</html>

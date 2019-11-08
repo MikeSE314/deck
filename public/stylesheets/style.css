@@ -1,0 +1,20 @@
+body {
+    padding: 50px;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+    color: #00B7FF;
+}
+
+.root-card {
+    max-width: 100%;
+}
+
+.root-back {
+}
+
+.amount {
+    width: 100%;
+    text-align: center;
+}
