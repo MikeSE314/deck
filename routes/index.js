@@ -579,6 +579,8 @@ router.get('/other_hands/:id', (req, res) => {
     res.send({hands: h})
 })
 
+/* test */
+
 router.get('/reset', (req, res) => {
     reset()
     res.send({msg: "good"})
