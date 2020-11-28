@@ -1,0 +1,9 @@
+# ignore directories
+__pycache__/
+env/
+.vscode/
+
+# ignore files
+.env
+*.pyc
+*.sqlite3
