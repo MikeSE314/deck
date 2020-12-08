@@ -4,7 +4,12 @@ let db = require("../db_connector")
 
 let cardSchema = new db.Schema({
   code: String,
-  image: String
+  cost: String,
+  title: String,
+  suit: String,
+  front_image: String,
+  back_image: String,
+  description: String
 })
 
 let pileSchema = new db.Schema({
