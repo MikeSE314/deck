@@ -18,7 +18,8 @@ let pileSchema = new db.Schema({
 })
 
 let deckSchema = new db.Schema({
-  piles: [ pileSchema ]
+  piles: [ pileSchema ],
+  coll: [ cardSchema ]
 }, {
   collection: "Deck"
 })

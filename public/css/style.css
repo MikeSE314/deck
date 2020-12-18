@@ -3,12 +3,12 @@
     --primary-text-color:   #000000;
     --secondary-text:       #000000;
     --secondary-text-color: #000000;
-    --primary:              #b71c1c;
-    --primary-light:        #f05545;
-    --primary-dark:         #7f0000;
-    --secondary:            #b71c1c;
-    --secondary-light:      #f05545;
-    --secondary-dark:       #7f0000;
+    --primary:              #00acc1;
+    --primary-light:        #5ddef4;
+    --primary-dark:         #007c91;
+    --secondary:            #bdbdbd;
+    --secondary-light:      #efefef;
+    --secondary-dark:       #8d8d8d;
 }
 
 nav {
@@ -36,7 +36,7 @@ nav {
     background-color: var(--secondary);
 }
 
-#add-btn {
+/* #add-btn {
     margin-top: 14px;
     margin-bottom: 14px;
 }
@@ -44,7 +44,7 @@ nav {
 .extra-small {
     height: 25px;
     line-height: 25px;
-}
+} */
 
 [type="checkbox"]:checked+.task {
     text-decoration: line-through;
@@ -55,7 +55,7 @@ nav {
     transition: .2s;
 }
 
-.extra-hidden {
+/* .extra-hidden {
      border: 0;
      padding: 0;
      margin: 0;
@@ -64,4 +64,44 @@ nav {
 .nav-padding {
      padding-left: 15px;
      padding-right: 15px;
+} */
+
+.inline-icon {
+    vertical-align: bottom;
+    font-size: 22px !important;
+ }
+
+ .card.upside-down {
+    width: 100px;
+    display: inline-block;
+    margin-left: -99px;
+}
+
+.deck-container {
+    padding-left: 100px
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+  
+.tooltip .tooltip-text {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+   
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -60px; /* Use half of the width (120/2 = 60), to center the tooltip */
+  }
+  
+.tooltip:hover .tooltip-text {
+    visibility: visible;
 }

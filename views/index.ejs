@@ -1,21 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <title>Hey</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-  <link rel="stylesheet" href="css/primary_5.css">
-  <link rel="stylesheet" href="css/secondary_10.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
+
 <body>
   <nav></nav>
-  <h1>Hey</h1>
+  <div class="container">
+    <h1>Hey</h1>
+    <div id="app">
+      <div v-if="shared_deck">
+        <div class="deck-container tooltip">
+          <div class="card upside-down" v-for="card in draw_pile.cards">
+            <div class="card-image">
+              <img :src="card.back_image">
+            </div>
+          </div>
+          <div class="tooltip-text">
+            {{draw_pile.cards.length}}
+          </div>
+        </div>
+        <br>
+        <button class="btn" @click="draw()">Draw</button>
+        <br>
+        <div class="row">
+          <div class="col m6 l4" v-for="card in hand_pile.cards">
+            <div class="card">
+              <div class="card-image">
+                <img :src="card.front_image">
+              </div>
+              <div class="card-content">
+                <span class="card-title activator">{{card.title}}<i class="material-icons right">more_vert</i></span>
+              </div>
+              <div class="card-reveal">
+                <span class="card-title">{{card.title}}<i class="material-icons right">close</i></span>
+                <div>Suit: {{card.suit}}</div>
+                <div>Cost: {{card.cost || "None"}}</div>
+                <p>{{card.description}}</p>
+              </div>
+              <div class="card-action">
+                <a><i class="inline-icon material-icons">handyman</i> Build</a>
+                <a><i class="inline-icon material-icons">delete_outline</i> Discard</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        <button @click="makeDeck()">Make Deck</button>
+      </div>
+
+      <div v-for="l in log">
+        {{l}}
+      </div>
+    </div>
+  </div>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
   <script src="js/script.js"></script>
 </body>
+
 </html>

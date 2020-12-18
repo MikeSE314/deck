@@ -3,255 +3,135 @@ let app = new Vue({
 
   // data
   data: {
+    HOST: "http://192.168.1.3",
+    shared_deck: undefined,
+    hand: undefined,
+    cards: [{ title: "No cards yet" }],
+    log: ["test"],
 
-    netid: "notset",
-
-    error_message: "",
-    helpUsers: [],
-    passoffUsers: [],
-    set: false,
-    user: {},
-    admin: false,
-    audio: new Audio('audio/chime.mp3'),
   },
 
   // methods
   methods: {
 
-    // getHelpList()
-    getHelpList() {
-      url = "api/help"
+    uuidv4() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8)
+        return v.toString(16)
+      })
+    },
+
+    loadLocal() {
+      this.shared_deck = JSON.parse(localStorage.getItem("shared_deck")) || undefined
+      this.hand = localStorage.getItem("hand") || this.uuidv4()
+      if (this.hand && this.shared_deck) this.hand_pile = this.getPile(this.hand)
+      if (this.shared_deck) this.draw_pile = this.getPile('draw')
+    },
+
+    saveLocal() {
+      if (this.shared_deck) localStorage.setItem("shared_deck", JSON.stringify(this.shared_deck))
+      if (this.hand) localStorage.setItem("hand", this.hand)
+    },
+
+    setHand() {
+      this.hand = this.uuidv4()
+    },
+
+    choose(choices) {
+      if (choices.length == 0) return null
+      let index = Math.floor(Math.random() * choices.length)
+      return choices[index]
+    },
+
+    async getDeck(deck_id) {
+      url = `/api/deck/${deck_id}/`
       fetch(url).then(response => {
+        if (!response.ok) throw Error(`Couldn't get deck with id ${deck_id}`)
         return response.json()
       }).then(json => {
-        this.helpUsers = json
-      }).catch(err => {
-        console.error(err)
+        this.shared_deck = json
+        if (this.hand) this.hand_pile = this.getPile(this.hand)
+        this.draw_pile = this.getPile('draw')
+        this.saveLocal()
       })
     },
 
-    // getPassoffList()
-    getPassoffList() {
-      url = "api/passoff"
+    getPile(pile_name) {
+      if (!this.shared_deck) return undefined
+      return this.shared_deck.piles.find(pile => pile.name === pile_name) || []
+    },
+
+    async makeDeck() {
+      url = `/api/deck/new/`
       fetch(url).then(response => {
+        if (!response.ok) throw Error(`Couldn't make new deck`)
         return response.json()
       }).then(json => {
-        this.passoffUsers = json
-      }).catch(err => {
-        console.error(err)
+        this.shared_deck = json
+        if (this.hand) this.hand_pile = this.getPile(this.hand)
+        this.draw_pile = this.getPile('draw')
+        this.shareDeck()
+        this.saveLocal()
       })
     },
 
-    // getLists()
-    getLists() {
-      this.getHelpList()
-      this.getPassoffList()
-    },
-
-    // adminRemoveHelp()
-    adminRemoveHelp(netid) {
-      this.helpUsers.map(item => {
-        if (item.netid === netid) {
-          console.info(`Removing %c${item.firstname} ${item.lastname} %cfrom Help List`, 'font-weight: bold; color: white;', 'font-weight: normal')
-        }
-      })
-      url = "api/help/admin/remove"
-      fetch(url, {
-        method: "PUT",
-        body: JSON.stringify({netid: netid}),
-        headers: {"Content-Type": "application/json"}
-      }).then(response => {
-        if (response.status !== 200) {
-          throw new Error("Bad remove")
-        }
-        socket.emit("updateList")
-      }).catch(err => {
-        console.error(err)
-      })
-    },
-
-    // adminRemovePassoff()
-    adminRemovePassoff(netid) {
-      this.passoffUsers.map(item => {
-        if (item.netid === netid) {
-          console.info(`Removing %c${item.firstname} ${item.lastname} %cfrom Passoff List`, 'font-weight: bold; color: white;', 'font-weight: normal')
-        }
-      })
-      url = "api/passoff/admin/remove"
-      fetch(url, {
-        method: "PUT",
-        body: JSON.stringify({netid: netid}),
-        headers: {"Content-Type": "application/json"}
-      }).then(response => {
-        if (response.status !== 200) {
-          throw new Error("Bad remove")
-        }
-        socket.emit("updateList")
-      }).catch(err => {
-        console.error(err)
-      })
-    },
-
-    // joinHelp()
-    joinHelp() {
-      url = "api/help/add"
-      fetch(url, {
-        method: "PUT",
-        body: JSON.stringify(this.user),
-        headers: {"Content-Type": "application/json"}
-      }).then(response => {
-        socket.emit("updateList")
-        socket.emit("playSound")
-      }).catch(err => {
-        console.error(err)
-      })
-    },
-
-    // joinPassoff()
-    joinPassoff() {
-      url = "api/passoff/add"
-      fetch(url, {
-        method: "PUT",
-        body: JSON.stringify(this.user),
-        headers: {"Content-Type": "application/json"}
-      }).then(response => {
-        socket.emit("updateList")
-        socket.emit("playSound")
-      }).catch(err => {
-        console.error(err)
-      })
-    },
-
-    // removeHelp()
-    removeHelp() {
-      url = "api/help/remove/" + this.netid
+    async draw() {
+      let randCard = this.choose(this.draw_pile.cards)
+      let url = `/api/deck/${this.shared_deck._id}/pile/${this.hand}/add/${randCard.code}/`
       fetch(url).then(response => {
-        if (response.status !== 200) {
-          throw new Error("Bad")
-        }
-        socket.emit("updateList")
-      }).catch(err => {
-        console.error(err)
+        if (!response.ok) throw Error(`Couldn't draw card`)
+        this.shareDeck()
       })
     },
 
-    // removePassoff()
-    removePassoff() {
-      url = "api/passoff/remove/" + this.netid
-      fetch(url).then(response => {
-        if (response.status !== 200) {
-          throw new Error("Bad")
-        }
-        socket.emit("updateList")
-      }).catch(err => {
-        console.error(err)
-      })
-    },
-
-    async getName() {
-      url = "api/user/" + this.netid
-      await fetch(url).then(response => {
-        if (response.status !== 200) {
-          throw new Error(`Couldn't find netid ${this.netid}`)
-        }
-        return response.json()
-      }).then(json => {
-        this.user = {
-          netid: json.netid,
-          firstname: json.firstname,
-          lastname: json.lastname
-        }
-        if (json) {
-          localStorage.setItem("netid", json.netid)
-          localStorage.setItem("firstname", json.firstname)
-          localStorage.setItem("lastname", json.lastname)
-        }
-      }).catch(err => {
-        this.error_message = err.message
-        console.error(err)
-      })
-    },
-
-    async setup() {
-      await this.getName()
-      this.getStorage()
-      // get first and last names
-      // store them in local storage
-      // check that it's set up
-    },
-
-    check() {
-
-    },
-
-    getStorage() {
-      this.netid = localStorage.getItem("netid")
-      firstname = localStorage.getItem("firstname")
-      lastname = localStorage.getItem("lastname")
-      this.user = {
-        netid: this.netid,
-        firstname: firstname,
-        lastname: lastname
-      }
-      this.set = false
-      if (firstname) {
-        this.set = true
+    // socket methods
+    onFindDeck(data) {
+      if (this.shared_deck) {
+        socket.emit("share_deck", this.shared_deck._id)
       }
     },
 
-    play() {
-      if (this.admin) {
-        this.audio.play()
-      }
+    onShareDeck(data) {
+      this.getDeck(data)
     },
 
-    getAdmin() {
-      url = "api/admin/test"
-      fetch(url).then(response => {
-        if (response.status === 200) {
-          this.admin = true
-        }
-      }).catch(err => {
-        console.error(err)
-      })
+    findDeck() {
+      socket.emit("find_deck")
+    },
+
+    findMaybe() {
+      if (!this.shared_deck) this.findDeck()
+    },
+
+    logger(data) {
+      this.log.push(JSON.stringify(data))
+    },
+
+    shareDeck() {
+      socket.emit("share_deck", this.shared_deck._id)
+    },
+
+
+  },
+  // mounted
+  mounted() {
+    this.loadLocal()
+    if (!this.shared_deck) {
+      this.findDeck()
     }
-
-
-  },
-
-  // computed
-  computed: {
-
-    onHelpList: function() {
-      return this.helpUsers.some(item => item.netid === this.netid)
-    },
-
-    onPassoffList: function() {
-      return this.passoffUsers.some(item => item.netid === this.netid)
-    },
-
-    onList: function() {
-      return this.onHelpList || this.onPassoffList
-    },
-
-  },
-
-  // created
-  created: function() {
-    // this.checkAuthentication()
-    this.getLists()
-    this.getStorage()
-    this.getAdmin()
   },
 
 })
 
+// socket setup
 let socket = io.connect("/")
-socket.on("updateList", (data) => {
-  app.getLists()
+
+socket.on("find_deck", (data) => {
+  app.onFindDeck(data)
 })
 
-socket.on("playSound", (data) => {
-  app.play()
+socket.on("share_deck", (data) => {
+  app.onShareDeck(data)
 })
 
+app.findMaybe()
